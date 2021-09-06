@@ -1,8 +1,13 @@
 # Send Emails via AWS Lambda
-Use AWS lamda to send an Email on behalf of a contact form to predefined email address. This allows many simple websites to be hosted on AWS S3, even if they have a contact form.
+Use Rust on AWS lamda to send a contact form E-Mail to a predefined email address. This allows many simple websites to be hosted on AWS S3 + Cloudfront, even if they have a contact form.
+
+# Further reading
+https://crates.io/crates/lambda_runtime
+https://github.com/awslabs/aws-lambda-rust-runtime
+https://aws.amazon.com/blogs/opensource/rust-runtime-for-aws-lambda/
 
 # WARNING
-Make sure you use locked down AWS access credentials!! The credentials should only be able to invoke the one lambda function and absolutly nothing else. If you do not follow this advice, someone may use your credentials to do bad things, such as max out your VM quota to mine bitcoin...
+Make sure you use locked down AWS access credentials!! The credentials should only be able to invoke the one lambda function and absolutly nothing else. If you do not follow this advice, someone may use your credentials to do bad things, such as max out your VM quota to mine cryptocoins...
 
 Lambda User Policy:
 
