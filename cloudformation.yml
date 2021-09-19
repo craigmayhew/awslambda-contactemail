@@ -12,6 +12,11 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Ref ParamS3Bucket
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+    DeletionPolicy: Retain
   LambdaContactFormSendEmail:
     Type: AWS::Lambda::Function
     Properties:
