@@ -45,3 +45,8 @@ Lambda Role Policy:
 
 #AWS SES
 You will need AWS ses setup to use this. Verify a domain via DNS entry, verify an email address and then request production use.
+
+# Deploy
+```
+aws cloudformation deploy --stack-name www-yourwebsite-com --capabilities CAPABILITY_NAMED_IAM --region eu-west-2 --template-file cloudformation.yml --parameter-overrides ParamS3Bucket=www.yourwebsite.com Application=yourwebsite
+```
