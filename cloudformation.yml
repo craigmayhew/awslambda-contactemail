@@ -7,6 +7,14 @@ Parameters:
     Description: S3 bucket to contian the website
     Type: String
     MinLength: 3
+  WebsiteURL:
+    Description: The URL of the website
+    Type: String
+    Default: ''
+  ParamCertificateARN:
+    Description: SSL Certificate for CloudFront
+    Type: String
+    Default: 'arn:aws:acm:us-east-1:ACCOUNT_ID_HERE:certificate/CERTIFICATE_ID'
 Resources:
   S3Bucket:
     Type: AWS::S3::Bucket
@@ -61,3 +69,44 @@ Resources:
             - "ec2:DescribeNetworkInterfaces"
             - "ec2:DeleteNetworkInterface"
             Resource: "*"
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+        - DomainName: !Sub ${WebsiteURL}.s3-website.${AWS::Region}.amazonaws.com
+          Id: websiteCustomOrigin
+          CustomOriginConfig:
+            OriginProtocolPolicy: http-only
+        Enabled: 'true'
+        Comment: !Sub ${WebsiteURL} infrastructure
+        DefaultRootObject: index.html
+        Aliases:
+        - !Sub ${WebsiteURL}
+        HttpVersion: http2
+        DefaultCacheBehavior:
+          Compress: 'true'
+          TargetOriginId: websiteCustomOrigin
+          SmoothStreaming: 'false'
+          ForwardedValues:
+            QueryString: 'false'
+            Cookies:
+              Forward: all
+          ViewerProtocolPolicy: redirect-to-https
+        CustomErrorResponses:
+        - ErrorCode: '404'
+          ResponsePagePath: "/index.html"
+          ResponseCode: '200'
+          ErrorCachingMinTTL: '30'
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: !Ref ParamCertificateARN
+          MinimumProtocolVersion: TLSv1.2_2018
+          SslSupportMethod: sni-only
+      Tags:
+        - Key: application
+          Value: !Sub ${WebsiteURL}
+Outputs:
+  URL:
+    Description: The URL of cloudfront which you should set as a CNAME/ALIAS in your DNS
+    Value: !GetAtt [CloudFrontDistribution, DomainName]
