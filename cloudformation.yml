@@ -26,7 +26,7 @@ Resources:
       Description: Send an email in response to a completed contact form
       FunctionName: cloudformation-contact-form-send-email
       Handler: index.handler
-      MemorySize: 256
+      MemorySize: 128
       Role:
         Fn::GetAtt:
         - LambdaExecutionRole
