@@ -46,7 +46,27 @@ Lambda Role Policy:
 #AWS SES
 You will need AWS ses setup to use this. Verify a domain via DNS entry, verify an email address and then request production use.
 
-# Deploy
+# Prep
+Install rust
+Install zip command line tool e.g. on ubuntu `apt install zip`
+Install aws command line tool
+Generate a certificate for your desired url in AWS certififcate manager, you will need the certificates ARN for cloudformation. This certificate must be created US-EAST-1.
+
+# Deploy, build, redploy
+We can deploy almost all of our infra via cloudformation, including a placeholder lambda. However we can't deploy a rust lambda directly with cloudformation. Therefore we use this method of updating it in place once it's deployed via cloudformation.
 ```
-aws cloudformation deploy --stack-name www-yourwebsite-com --capabilities CAPABILITY_NAMED_IAM --region eu-west-2 --template-file cloudformation.yml --parameter-overrides ParamS3Bucket=www.yourwebsite.com Application=yourwebsite
+aws cloudformation deploy --stack-name www-yourwebsite-com --capabilities CAPABILITY_NAMED_IAM --region eu-west-2 --template-file cloudformation.yml --parameter-overrides ParamS3Bucket=www.yourwebsite.com Application=yourwebsite WebsiteURL=www.yourwebsite.com
+
+cargo build --release --target x86_64-unknown-linux-musl
+
+cp ./target/x86_64-unknown-linux-musl/release/bootstrap ./bootstrap && zip lambda.zip bootstrap && rm bootstrap
+
+aws lambda update-function-code --function-name cloudformation-contact-form-send-email \
+  --zip-file fileb://./lambda.zip
+
+aws lambda update-function-configuration --function-name cloudformation-contact-form-send-email \
+  --handler doesnt.matter \
+  --runtime provided \
+  --environment Variables={RUST_BACKTRACE=1} \
+  --tracing-config Mode=Active
 ```
