@@ -24,7 +24,7 @@ Resources:
     Properties:
       Code:
         ZipFile: !Sub |
-          console.log("WARNING. This function needs to be replaced by the second dpart of the deploy!")
+          console.log("WARNING. This function needs to be replaced by the second part of the deploy process!")
       Description: Send an email in response to a completed contact form
       FunctionName: cloudformation-contact-form-send-email
       Handler: index.handler
