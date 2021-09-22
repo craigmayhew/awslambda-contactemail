@@ -2,15 +2,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: A static website with contact form. S3, Cloud Formation, Lambda, SES.
 Parameters:
-  ParamS3Bucket:
-    Default: www.somewebsite.example
-    Description: S3 bucket to contian the website
-    Type: String
-    MinLength: 3
   WebsiteURL:
     Description: The URL of the website
     Type: String
-    Default: ''
   ParamCertificateARN:
     Description: SSL Certificate for CloudFront
     Type: String
@@ -19,7 +13,7 @@ Resources:
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Ref ParamS3Bucket
+      BucketName: !Ref WebsiteURL
       AccessControl: PublicRead
       WebsiteConfiguration:
         IndexDocument: index.html

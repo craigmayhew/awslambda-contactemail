@@ -55,7 +55,7 @@ Generate a certificate for your desired url in AWS certififcate manager, you wil
 # Deploy, build, redploy
 We can deploy almost all of our infra via cloudformation, including a placeholder lambda. However we can't deploy a rust lambda directly with cloudformation. Therefore we use this method of updating it in place once it's deployed via cloudformation.
 ```
-aws cloudformation deploy --stack-name www-yourwebsite-com --capabilities CAPABILITY_NAMED_IAM --region eu-west-2 --template-file cloudformation.yml --parameter-overrides ParamS3Bucket=www.yourwebsite.com Application=yourwebsite WebsiteURL=www.yourwebsite.com
+aws cloudformation deploy --stack-name www-yourwebsite-com --capabilities CAPABILITY_NAMED_IAM --region us-east-1 --template-file cloudformation.yml --parameter-overrides Application=yourwebsite WebsiteURL=www.yourwebsite.com
 
 cargo build --release --target x86_64-unknown-linux-musl
 
