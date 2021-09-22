@@ -43,14 +43,13 @@ Lambda Role Policy:
       ]
     }
 
-#AWS SES
-You will need AWS ses setup to use this. Verify a domain via DNS entry, verify an email address and then request production use.
 
 # Prep
 Install rust
 Install zip command line tool e.g. on ubuntu `apt install zip`
 Install aws command line tool
 Generate a certificate for your desired url in AWS certififcate manager, you will need the certificates ARN for cloudformation. This certificate must be created US-EAST-1.
+You will need AWS ses setup to use this. Verify a domain via DNS entry, verify an email address and then request production use.
 
 # Deploy, build, redploy
 We can deploy almost all of our infra via cloudformation, including a placeholder lambda. However we can't deploy a rust lambda directly with cloudformation. Therefore we use this method of updating it in place once it's deployed via cloudformation.
