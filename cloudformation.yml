@@ -29,6 +29,7 @@ Resources:
       FunctionName: cloudformation-contact-form-send-email
       Handler: index.handler
       MemorySize: 128
+      ReservedConcurrentExecutions: 1
       Role:
         Fn::GetAtt:
         - LambdaExecutionRole
