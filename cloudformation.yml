@@ -35,6 +35,11 @@ Resources:
         - Arn
       Runtime: nodejs14.x
       Timeout: 1
+  LambdaVersion:
+    Type: AWS::Lambda::Version
+    Properties:
+      Description: "production"
+      FunctionName: !Ref LambdaContactFormSendEmail
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -87,6 +92,10 @@ Resources:
             Cookies:
               Forward: all
           ViewerProtocolPolicy: redirect-to-https
+          LambdaFunctionAssociations:
+            - EventType: viewer-request
+              IncludeBody: true
+              LambdaFunctionARN: !Ref LambdaVersion
         CustomErrorResponses:
         - ErrorCode: '404'
           ResponsePagePath: "/index.html"
