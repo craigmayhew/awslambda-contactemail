@@ -61,11 +61,13 @@ cargo build --release --target x86_64-unknown-linux-musl
 cp ./target/x86_64-unknown-linux-musl/release/bootstrap ./bootstrap && zip lambda.zip bootstrap && rm bootstrap
 
 aws lambda update-function-code --function-name cloudformation-contact-form-send-email \
-  --zip-file fileb://./lambda.zip
+  --zip-file fileb://./lambda.zip \
+  --region us-east-1
 
 aws lambda update-function-configuration --function-name cloudformation-contact-form-send-email \
   --handler doesnt.matter \
   --runtime provided \
   --environment Variables={RUST_BACKTRACE=1} \
-  --tracing-config Mode=Active
+  --tracing-config Mode=Active \
+  --region us-east-1
 ```
