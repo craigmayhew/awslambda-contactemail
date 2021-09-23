@@ -98,6 +98,28 @@ Resources:
             - EventType: viewer-request
               IncludeBody: true
               LambdaFunctionARN: !Ref LambdaVersion
+        CacheBehaviors:
+          - AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+            Compress: 'true'
+            TargetOriginId: websiteCustomOrigin
+            PathPattern: /post-contact-form
+            SmoothStreaming: 'false'
+            ForwardedValues:
+              QueryString: 'false'
+              Cookies:
+                Forward: all
+            ViewerProtocolPolicy: redirect-to-https
+            LambdaFunctionAssociations:
+              - EventType: viewer-request
+                IncludeBody: true
+                LambdaFunctionARN: !Ref LambdaVersion
         CustomErrorResponses:
         - ErrorCode: '404'
           ResponsePagePath: "/index.html"
