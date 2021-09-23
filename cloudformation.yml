@@ -86,6 +86,10 @@ Resources:
         - !Sub ${WebsiteURL}
         HttpVersion: http2
         DefaultCacheBehavior:
+          AllowedMethods:
+           - GET
+           - HEAD
+           - OPTIONS
           Compress: 'true'
           TargetOriginId: websiteCustomOrigin
           SmoothStreaming: 'false'
@@ -94,10 +98,6 @@ Resources:
             Cookies:
               Forward: all
           ViewerProtocolPolicy: redirect-to-https
-          LambdaFunctionAssociations:
-            - EventType: viewer-request
-              IncludeBody: true
-              LambdaFunctionARN: !Ref LambdaVersion
         CacheBehaviors:
           - AllowedMethods:
             - GET
