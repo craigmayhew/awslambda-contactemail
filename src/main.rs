@@ -1,17 +1,16 @@
-#[macro_use]
 extern crate lambda_runtime as lambda;
-#[macro_use]
 extern crate serde_derive;
 #[macro_use]
 extern crate log;
 extern crate simple_logger;
 
-use lambda::error::HandlerError;
-
-use std::error::Error;
+use lambda::{handler_fn, Context, Error};
+use log::LevelFilter;
+use serde::{Deserialize, Serialize};
+use simple_logger::SimpleLogger;
 
 #[derive(Deserialize, Clone)]
-struct CustomEvent {
+struct Request {
     #[serde(rename = "name")]
     name: String,
     #[serde(rename = "phone")]
@@ -22,40 +21,51 @@ struct CustomEvent {
     message: String,
 }
 
-#[derive(Serialize, Clone)]
-struct CustomOutput {
-    message: String,
+#[derive(Serialize)]
+struct Response {
+    req_id: String,
+    msg: String,
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-    simple_logger::init_with_level(log::Level::Info)?;
-    lambda!(my_handler);
+#[tokio::main]
+async fn main() -> Result<(), Error> {
+    // required to enable CloudWatch error logging by the runtime
+    // can be replaced with any other method of initializing `log`
+    SimpleLogger::new().with_level(LevelFilter::Info).init().unwrap();
 
+    let func = handler_fn(my_handler);
+    lambda_runtime::run(func).await?;
     Ok(())
 }
 
-fn my_handler(e: CustomEvent, c: lambda::Context) -> Result<CustomOutput, HandlerError> {
-    if e.name == "" {
-        error!("Empty name in request {}", c.aws_request_id);
-        return Err(c.new_error("Empty name"));
+pub(crate) async fn my_handler(e: Request, ctx: Context) -> Result<Response, Error> {
+    let mut output_msg = "";
+    let name = e.name.as_str();
+    if name == "" {
+        error!("Empty name in request {}", ctx.request_id);
+        output_msg = "Error: name is empty."
     }
 
-    if e.phone == "" {
-        error!("Empty phone number in request {}", c.aws_request_id);
-        return Err(c.new_error("Empty phone number"));
+    let phone = e.phone.as_str();
+    if phone == "" {
+        error!("Empty phone number in request {}", ctx.request_id);
+        output_msg = "Error: phone is empty."
     }
 
-    if e.email == "" {
-        error!("Empty E-Mail in request {}", c.aws_request_id);
-        return Err(c.new_error("Empty E-Mail"));
+    let email = e.email.as_str();
+    if email == "" {
+        error!("Empty E-Mail in request {}", ctx.request_id);
+        output_msg = "Error: E-Mail is empty."
     }
 
-    if e.message == "" {
-        error!("Empty message in request {}", c.aws_request_id);
-        return Err(c.new_error("Empty Message"));
+    let message = e.message.as_str();
+    if message == "" {
+        error!("Empty message in request {}", ctx.request_id);
+        output_msg = "Error: message is empty."
     }
 
-    Ok(CustomOutput {
-        message: format!("Hello, {}!", e.name),
+    Ok(Response {
+        req_id: ctx.request_id,
+        msg: output_msg.to_string(),
     })
 }
