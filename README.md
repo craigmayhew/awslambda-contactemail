@@ -1,13 +1,13 @@
 # Send Emails via AWS Lambda
-Use Rust on AWS lamda to send a contact form E-Mail to a predefined email address. This allows many simple websites to be hosted on AWS S3 + Cloudfront, even if they have a contact form.
+Use Rust on AWS Lambda to send a contact form E-Mail to a predefined email address. This allows many simple websites to be hosted on AWS S3 + Cloudfront, even if they have a contact form.
 
 # Further reading
-https://crates.io/crates/lambda_runtime
-https://github.com/awslabs/aws-lambda-rust-runtime
-https://aws.amazon.com/blogs/opensource/rust-runtime-for-aws-lambda/
+ - https://crates.io/crates/lambda_runtime
+ - https://github.com/awslabs/aws-lambda-rust-runtime
+ - https://aws.amazon.com/blogs/opensource/rust-runtime-for-aws-lambda/
 
 # WARNING
-Make sure you use locked down AWS access credentials!! The credentials should only be able to invoke the one lambda function and absolutly nothing else. If you do not follow this advice, someone may use your credentials to do bad things, such as max out your VM quota to mine cryptocoins...
+Make sure you use locked down AWS access credentials!! The credentials should only be able to invoke the one lambda function and absolutely nothing else. If you do not follow this advice, someone may use your credentials to do bad things, such as max out your VM quota to mine cryptocoins...
 
 Lambda User Policy:
 
@@ -43,26 +43,25 @@ Lambda Role Policy:
       ]
     }
 
-TODO
-
-Modify html in contact form to load a lambda for jquery.
-Modify the cloudfront settings to fireoff a lambda on a certain file path being called.
-Finish writing the rust lambda function to connect to SES and send the email.
-Do we still the need lambda version in the cloudformation?
+# TODO from 2021 WIP
+ - Modify html in contact form to load a lambda for jquery.
+ - Modify the CloudFront settings to fireoff a lambda on a certain file path being called.
+ - Finish writing the rust lambda function to connect to SES and send the email.
+ - Do we still the need lambda version in the cloudformation?
 
 # Prep
 Install rust
 Install zip command line tool e.g. on ubuntu `apt install zip`
 Install aws command line tool
-Generate a certificate for your desired url in AWS certififcate manager, you will need the certificates ARN for cloudformation. This certificate must be created US-EAST-1.
+Generate a certificate for your desired url in AWS certificate manager, you will need the certificates ARN for cloudformation. This certificate must be created US-EAST-1.
 You will need AWS ses setup to use this. Verify a domain via DNS entry, verify an email address and then request production use.
 
-# Deploy, build, redploy
+# Deploy, build, redeploy
 We can deploy almost all of our infra via cloudformation, including a placeholder lambda. However we can't deploy a rust lambda directly with cloudformation. Therefore we use this method of updating it in place once it's deployed via cloudformation.
 ```
 aws cloudformation deploy --stack-name www-yourwebsite-com --capabilities CAPABILITY_NAMED_IAM --region us-east-1 --template-file cloudformation.yml --parameter-overrides Application=yourwebsite WebsiteURL=www.yourwebsite.com
 
-# now manually upload files to populate your new S3 bucket with html/css/images. Ensure each file as pubic read access.
+# now manually upload files to populate your new S3 bucket with html/css/images. Ensure each file as public read access.
 
 # now manually deploy the lambda function to lambda@edge via the console, keeping the existing trigger.
 
