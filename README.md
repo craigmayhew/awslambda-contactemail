@@ -43,6 +43,12 @@ Lambda Role Policy:
       ]
     }
 
+TODO
+
+Modify html in contact form to load a lambda for jquery.
+Modify the cloudfront settings to fireoff a lambda on a certain file path being called.
+Finish writing the rust lambda function to connect to SES and send the email.
+Do we still the need lambda version in the cloudformation?
 
 # Prep
 Install rust
@@ -55,6 +61,10 @@ You will need AWS ses setup to use this. Verify a domain via DNS entry, verify a
 We can deploy almost all of our infra via cloudformation, including a placeholder lambda. However we can't deploy a rust lambda directly with cloudformation. Therefore we use this method of updating it in place once it's deployed via cloudformation.
 ```
 aws cloudformation deploy --stack-name www-yourwebsite-com --capabilities CAPABILITY_NAMED_IAM --region us-east-1 --template-file cloudformation.yml --parameter-overrides Application=yourwebsite WebsiteURL=www.yourwebsite.com
+
+# now manually upload files to populate your new S3 bucket with html/css/images. Ensure each file as pubic read access.
+
+# now manually deploy the lambda function to lambda@edge via the console, keeping the existing trigger.
 
 cargo build --release --target x86_64-unknown-linux-musl
 
@@ -70,4 +80,8 @@ aws lambda update-function-configuration --function-name cloudformation-contact-
   --environment Variables={RUST_BACKTRACE=1} \
   --tracing-config Mode=Active \
   --region us-east-1
+
+# now "deploy api" from the gui or perhaps there is a one liner we can add here?
 ```
+
+aws deploy production version of function <--- might not be needed now as we don't need to specify a lambda function version

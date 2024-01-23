@@ -75,6 +75,11 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
+        - DomainName: !Sub ${API}.execute-api.${AWS::Region}.amazonaws.com
+          Id: api
+          CustomOriginConfig:
+            OriginProtocolPolicy: https-only #again API-Gateway only supports https
+          OriginPath: /prod #name of the deployed stage
         - DomainName: !Sub ${WebsiteURL}.s3-website.${AWS::Region}.amazonaws.com
           Id: websiteCustomOrigin
           CustomOriginConfig:
@@ -111,15 +116,12 @@ Resources:
             TargetOriginId: websiteCustomOrigin
             PathPattern: /post-contact-form
             SmoothStreaming: 'false'
+            TargetOriginId: api #id of the orignin
             ForwardedValues:
               QueryString: 'false'
               Cookies:
                 Forward: all
             ViewerProtocolPolicy: redirect-to-https
-            LambdaFunctionAssociations:
-              - EventType: viewer-request
-                IncludeBody: true
-                LambdaFunctionARN: !Ref LambdaVersion
         CustomErrorResponses:
         - ErrorCode: '404'
           ResponsePagePath: "/index.html"
@@ -133,6 +135,79 @@ Resources:
       Tags:
         - Key: application
           Value: !Sub ${WebsiteURL}
+  API:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: Contact Form Email Sender API
+      Description: API used for sending emails containing contact form information
+      FailOnWarnings: true
+  UsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      Description: Contact Form Email Sender API
+      Quota:
+        Limit: 1000
+        Period: MONTH
+      Throttle:
+        BurstLimit: 5
+        RateLimit: 2
+      UsagePlanName: UsagePlan
+  APIResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Sub ${API}
+      ParentId:
+        Fn::GetAtt:
+        - API
+        - RootResourceId
+      PathPart: post-contact-form
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      FunctionName:
+        Fn::GetAtt:
+        - LambdaContactFormSendEmail
+        - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${API}/*/POST/post-contact-form"
+  ContactFormRequest:
+    DependsOn: LambdaPermission
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri:
+          Fn::Join:
+          - ''
+          - - 'arn:aws:apigateway:'
+            - Ref: AWS::Region
+            - ":lambda:path/2015-03-31/functions/"
+            - Fn::GetAtt:
+              - LambdaContactFormSendEmail
+              - Arn
+            - "/invocations"
+        IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+        RequestTemplates:
+          application/json: '"$input.params(''pid'')"'
+      RequestParameters:
+        method.request.querystring.name: false
+      ResourceId: !Sub ${APIResource}
+      RestApiId: !Sub ${API}
+      MethodResponses:
+      - StatusCode: 200
+        ResponseParameters:
+          method.response.header.Access-Control-Allow-Headers: true
+          method.response.header.Access-Control-Allow-Methods: true
+          method.response.header.Access-Control-Allow-Origin: true
 Outputs:
   URL:
     Description: The URL of cloudfront which you should set as a CNAME/ALIAS in your DNS

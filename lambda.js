@@ -1,6 +1,6 @@
 var emailRecipient = [];
 var subject = 'Message From S3';
-
+//delethe this whole file
 exports.handler_emailContactForm = function(event, context) {
     //a very basic form of authorization so random calls don't fire off nonsense emails
     if (event.authorization == '8uhui9ihiu83he3032hteogo') {
